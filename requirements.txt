@@ -1,3 +1,4 @@
 pandas
+geopandas
 requests
 pyarrow
