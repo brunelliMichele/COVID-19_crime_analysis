@@ -1,1 +1,10 @@
-criminology/data/*.csv
+# data (keep local)
+data/
+**/*.csv
+
+# junk
+.DS_Store
+.ipynb_checkpoints/
+__pycache__/
+.venv/
+EOF
