@@ -1,6 +1,7 @@
 # data (keep local)
 data/
-**/*.csv
+*.csv
+*.parquet
 
 # junk
 .DS_Store
