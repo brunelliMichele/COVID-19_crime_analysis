@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 import geopandas as gpd
-from scripts.utils import fix_sardinia_codes
+from app.utils import fix_sardinia_codes
 
 DF_CRIME = pd.read_parquet("data/processed/crime_clean.parquet")
 SHAPE = gpd.read_parquet("data/shapes/nuts3_it.geoparquet")
