@@ -1,33 +1,48 @@
 import pandas as pd
 import geopandas as gpd
-import matplotlib.pyplot as plt
-from pathlib import Path
+from scripts.utils import fix_sardinia_codes
 
-def main() -> None:
-    NUTS_PATH = Path("data/shapes/nuts3_it.geoparquet")
-    CRIME_PATH = Path("data/processed/crime_clean.parquet")
+crime = pd.read_parquet("data/processed/crime_clean.parquet")
+criminality = pd.read_parquet("data/processed/criminality_clean.parquet")
 
-    nuts3 = gpd.read_parquet(NUTS_PATH)
-    df_crime = pd.read_parquet(CRIME_PATH)
+prov_shape = gpd.read_parquet("data/shapes/nuts3_it.geoparquet")
 
-    prov = df_crime[df_crime["REF_AREA"].str.len() == 5].copy()
-    
-    year = 2020
-    crime_code = "ARSON"
 
-    s = prov[(prov["TIME_PERIOD"] == year) & (prov["TYPE_CRIME"] == crime_code)].copy()
-    gdf = nuts3.merge(s, left_on="NUTS_ID", right_on="REF_AREA", how="left")
+prov_shape_filterd = fix_sardinia_codes(prov_shape)
 
-    ax = gdf.plot(column="OBS_VALUE", legend=True)
-    ax.set_title(f"{crime_code} ({year})")
+crime = crime[crime["REF_AREA"].isin(prov_shape_filterd["NUTS_ID"])]
 
-    OUT_DIR = Path("outputs")
-    OUT_DIR.mkdir(parents=True, exist_ok=True)
-    fig_path = OUT_DIR / f"map_{crime_code}_{year}.png"
-    plt.savefig(fig_path, dpi=200, bbox_inches="tight")
-    print(f"[OK] saved map to {fig_path.resolve()}")
+# gdf = prov_shape.merge(crime, left_on="NUTS_ID", right_on="REF_AREA")
 
-    plt.show()
+threshold = 1000
 
-if __name__ == "__main__":
-    main()
+pre_covid_crime = crime[crime["TIME_PERIOD"].between(2014, 2019)]
+
+sum_per_year = (
+    pre_covid_crime
+    .groupby(["TIME_PERIOD", "TYPE_CRIME"])["OBS_VALUE"]
+    .sum()
+)
+
+mean_pre_covid = sum_per_year.groupby("TYPE_CRIME").mean()
+
+valid_crimes = mean_pre_covid[mean_pre_covid >= threshold].index
+
+covid_crime = (
+    crime[crime["TIME_PERIOD"] == 2020]
+    .groupby("TYPE_CRIME")["OBS_VALUE"]
+    .sum()
+)
+
+common_crime = valid_crimes.intersection(covid_crime.index)
+
+variation = (
+    (covid_crime.loc[common_crime] - mean_pre_covid.loc[common_crime])
+    / mean_pre_covid.loc[common_crime]
+    * 100
+).sort_values()
+
+print(variation)
+
+
+
