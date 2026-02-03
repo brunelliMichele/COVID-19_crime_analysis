@@ -1,20 +1,33 @@
 import pandas as pd
+import geopandas as gpd
+import matplotlib.pyplot as plt
+from pathlib import Path
 
-df_1 = pd.read_parquet("data/processed/delittips_1_2014_2023.parquet")
-df_9 = pd.read_parquet("data/processed/delittips_9_2014_2023.parquet")
+def main() -> None:
+    NUTS_PATH = Path("data/shapes/nuts3_it.geoparquet")
+    CRIME_PATH = Path("data/processed/crime_clean.parquet")
 
-df_1["REF_AREA"] = df_1["REF_AREA"].astype(str)
+    nuts3 = gpd.read_parquet(NUTS_PATH)
+    df_crime = pd.read_parquet(CRIME_PATH)
 
-italy = df_1[df_1["REF_AREA"] == "IT"].copy()
-macro = df_1[df_1["REF_AREA"].str.len() == 3].copy()
-regions = df_1[df_1["REF_AREA"].str.len() == 4].copy()
-provinces = df_1[df_1["REF_AREA"].str.len() == 5].copy()
+    prov = df_crime[df_crime["REF_AREA"].str.len() == 5].copy()
+    
+    year = 2020
+    crime_code = "ARSON"
 
-print(df_1["REF_AREA"].nunique(), macro["REF_AREA"].nunique(), regions["REF_AREA"].nunique(), provinces["REF_AREA"].nunique())
+    s = prov[(prov["TIME_PERIOD"] == year) & (prov["TYPE_CRIME"] == crime_code)].copy()
+    gdf = nuts3.merge(s, left_on="NUTS_ID", right_on="REF_AREA", how="left")
 
-# rename = {
-#     "REF_AREA": "prov_code",
-#     "TIME_PERIOD": "year",
-#     "TYPE_CRIME": "crime_code",
-#     "OBS_VALUE": "value"
-# }
+    ax = gdf.plot(column="OBS_VALUE", legend=True)
+    ax.set_title(f"{crime_code} ({year})")
+
+    OUT_DIR = Path("outputs")
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    fig_path = OUT_DIR / f"map_{crime_code}_{year}.png"
+    plt.savefig(fig_path, dpi=200, bbox_inches="tight")
+    print(f"[OK] saved map to {fig_path.resolve()}")
+
+    plt.show()
+
+if __name__ == "__main__":
+    main()
