@@ -1,5 +1,4 @@
 # data (keep local)
-data/
 *.csv
 *.parquet
 
