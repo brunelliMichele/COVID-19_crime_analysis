@@ -5,10 +5,15 @@ st.set_page_config(
     layout="wide"
 )
 
-st.title("COVID-19 and criminality in Italy")
-st.markdown("""
-Analysis of the impact of the pandemic on the spatial distribution 
-and intensity of crimes in the Italian provinces (2014-2023).
-""")
+pages = {
+    "Home": [
+        st.Page("pages/home.py", title="Home"),
+    ],
+    "Analysis": [
+        st.Page("pages/01_map_1.py", title="Crime Variation Map"),
+        st.Page("pages/02_map_2.py", title="Criminality Rate Variation"),
+    ]
+}
 
-st.sidebar.success("Select a page")
+pg = st.navigation(pages)
+pg.run()
