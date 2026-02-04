@@ -63,14 +63,14 @@ if n_valid == 0:
     st.error("No available data for this type of crime")
 else:
     # map
-    fig = px.choropleth_mapbox(
+    fig = px.choropleth_map(
         gdf,
         geojson=gdf.geometry.__geo_interface__,
         locations=gdf.index,
         color="VAR",
         color_continuous_scale="RdYlGn_r",
         range_color=[-80, 80],
-        mapbox_style="carto-positron",
+        map_style="carto-positron",
         center={"lat": 42.0, "lon": 12.5},
         zoom=5,
         hover_name="AREA_NAME",
@@ -89,7 +89,7 @@ else:
     )
     fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0}, height=700)
 
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
     # stats
     col1, col2, col3 = st.columns(3)

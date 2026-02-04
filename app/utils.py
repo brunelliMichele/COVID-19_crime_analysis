@@ -131,13 +131,9 @@ def calc_variation(crime: pd.DataFrame, crime_type: str) -> pd.DataFrame:
         "COVID_2020": covid_sum.reindex(pre_mean.index).values,
     })
     
-    result["VAR"] = result.apply(
-        lambda row: (
-                (row["COVID_2020"] - row["MEAN_PRE"]) / row["MEAN_PRE"] * 100
-                if row["MEAN_PRE"] != 0 else None,
-            ),
-            axis=1
-    )
+    result["VAR"] = (result["COVID_2020"] - result["MEAN_PRE"]) / result["MEAN_PRE"] * 100
+
+    result.loc[result["MEAN_PRE"] == 0, "VAR"] = None
 
     return result
 
@@ -156,17 +152,13 @@ def calc_rate_variation(criminality: pd.DataFrame, crime_type: str) -> pd.DataFr
         "COVID_2020": covid_val.reindex(pre_mean.index).values,
     })
 
-    result["VAR"] = result.apply(
-        lambda row: (
-            (row["COVID_2020"] - row["MEAN_PRE"]) / row["MEAN_PRE"] * 100
-            if row["MEAN_PRE"] > 0 else None,
-        ),
-        axis=1
-    )
+    result["VAR"] = (result["COVID_2020"] - result["MEAN_PRE"]) / result["MEAN_PRE"] * 100
+    result.loc[result["MEAN_PRE"] == 0, "VAR"] = None
 
     return result
 
     
+
 def fix_sardinia_codes(gdf: gpd.GeoDataFrame, column: str="NUTS_ID") -> gpd.GeoDataFrame:
     gdf = gdf.copy()
     gdf[column] = gdf[column].replace(MAPPING_SARDINIA)
