@@ -1,6 +1,7 @@
 # data (keep local)
 *.csv
 *.parquet
+*.geoparquet
 
 # junk
 .DS_Store
