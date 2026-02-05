@@ -157,8 +157,6 @@ def calc_rate_variation(criminality: pd.DataFrame, crime_type: str) -> pd.DataFr
 
     return result
 
-    
-
 def fix_sardinia_codes(gdf: gpd.GeoDataFrame, column: str="NUTS_ID") -> gpd.GeoDataFrame:
     gdf = gdf.copy()
     gdf[column] = gdf[column].replace(MAPPING_SARDINIA)

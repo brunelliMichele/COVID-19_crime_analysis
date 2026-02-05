@@ -12,6 +12,7 @@ pages = {
     "Analysis": [
         st.Page("pages/01_map_1.py", title="Crime Variation Map"),
         st.Page("pages/02_map_2.py", title="Criminality Rate Variation"),
+        st.Page("pages/03_moran.py", title="Spatial Autocorrelation Analysis"),
     ]
 }
 
