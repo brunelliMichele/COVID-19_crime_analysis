@@ -1,28 +1,14 @@
 import streamlit as st
-import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-from plotly.subplots import make_subplots
 from utils import (
     load_crime_data, load_criminality_data, load_shapes,
-    filter_crime_by_level, CRIME_CATEGORIES
+    filter_crime_by_level, calc_period_variation,
+    CRIME_CATEGORIES, GEO_LEVELS, PERIODS, BASELINE
 )
+
 # pyright: reportAttributeAccessIssue=false
 # pyright: reportCallIssue=false
-
-GEO_LEVELS = {
-    "Provinces": "provinces",
-    "Regions": "regions",
-    "Macro-areas": "macro-areas",
-}
-
-PERIODS = {
-    "Pre-COVID (2014-2019)": (2014, 2019),
-    "During COVID (2020-2021)": (2020, 2021),
-    "Post-COVID (2022-2023)": (2022, 2023),
-}
-
-BASELINE = (2014, 2019) # reference period for variation calculation
 
 st.set_page_config(
     page_title="Spatial Distribution of Crime Changes",
@@ -32,29 +18,8 @@ st.set_page_config(
 st.title("Spatial Distribution of Crime Changes")
 st.markdown("Crime variation (%) from pre-COVID baseline (2014-2019)")
 
-# ----------------- Functions ----------------
-def calc_period_variation(df: pd.DataFrame, crime_type: str, baseline: tuple, target: tuple) -> pd.DataFrame:
-    """Calculate variation between baseline period and target period"""
-    filtered = df[df["TYPE_CRIME"] == crime_type]
 
-    # baseline mean
-    base_data = filtered[filtered["TIME_PERIOD"].between(baseline[0], baseline[1])]
-    base_mean = base_data.groupby("REF_AREA", as_index=False)["OBS_VALUE"].mean()
-    base_mean.columns = ["REF_AREA", "BASELINE"]
-
-    # target mean
-    target_data = filtered[filtered["TIME_PERIOD"].between(target[0], target[1])]
-    target_mean = target_data.groupby("REF_AREA", as_index=False)["OBS_VALUE"].mean()
-    target_mean.columns = ["REF_AREA", "TARGET"]
-
-    # merge and calculate variation
-    result = base_mean.merge(target_mean, on="REF_AREA", how="outer")
-    result["VAR"] = (result["TARGET"] - result["BASELINE"]) / result["BASELINE"] * 100
-    result.loc[result["BASELINE"] == 0, "VAR"] = None
-
-    return result
-
-# ---------- Sidebar filters -------------
+# ---------- Sidebar filters ----------
 st.sidebar.header("Filters")
 
 # data type selection
@@ -84,7 +49,7 @@ crime_codes = list(crimes_in_category.keys())
 selected_label = st.sidebar.selectbox("Type of crime", crime_labels)
 selected_crime = crime_codes[crime_labels.index(selected_label)]
 
-# ------------ Load data -----------------
+# ---------- Load data ----------
 if data_type == "Absolute crimes":
     raw_data = load_crime_data()
     value_format = ":.0f"
@@ -95,7 +60,7 @@ else:
 raw_data = filter_crime_by_level(raw_data, geo_level)
 shapes = load_shapes(geo_level)
 
-# ----- Calculate variations for all periods ------
+# ---------- Calculate variations for all periods ----------
 results = {}
 
 for period_name, (start, end) in PERIODS.items():
@@ -110,10 +75,10 @@ if len(results) == 0:
     st.stop()
 
 
-# -------------- Display subtitle --------------
+# ---------- Display subtitle ----------
 st.caption(f"**{selected_label}** | {data_type} | {selected_geo_label}")
 
-# -------------- Period selection ---------------
+# ---------- Period selection ----------
 view_mdoe = st.radio(
     "View mode",
     ["Single period", "Compare all periods"],
@@ -220,7 +185,7 @@ else:
 
             st.plotly_chart(fig, width="stretch")
 
-# --------------- Bar chart: mean variation by period -------
+# ---------- Bar chart ----------
 st.markdown("---")
 st.markdown("### Mean Variation Trend")
 
@@ -247,7 +212,7 @@ fig_bar.update_layout(
 
 st.plotly_chart(fig_bar, width="stretch")
 
-# ---------- Top increases/decreases table ---------
+# ---------- Top increases/decreases table ----------
 with st.expander("Top 10 increases and decreases by period"):
     selected_period_table = st.selectbox(
         "Select period",

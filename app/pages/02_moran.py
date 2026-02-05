@@ -1,16 +1,15 @@
 import streamlit as st
-import numpy as np
 import pandas as pd
-import geopandas as gpd
 import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
-from libpysal.weights import Queen
-from esda.moran import Moran, Moran_Local
 from utils import(
-    load_crime_data, load_criminality_data, load_shapes,
-    filter_crime_by_level, CRIME_CATEGORIES
+    load_crime_data, load_criminality_data, load_shapes, 
+    filter_crime_by_level, compute_moran_for_period,
+    CRIME_CATEGORIES, PERIODS_WITH_BASELINE, PERIOD_COLORS, 
+    QUADRANT_COLORS, QUADRANT_LABELS, LISA_COLORS
 )
+
 # pyright: reportAttributeAccessIssue=false
 # pyright: reportCallIssue=false
 
@@ -26,113 +25,7 @@ Moran's I measures whether similar values cluster spatially across three periods
 - **Post-COVID (2022-2023)**: recovery phase
 """)
 
-# -------- PERIOD definitions ----------
-PERIODS = {
-    "Pre-COVID (2014-2019)": (2014, 2019),
-    "During COVID (2020-2021)": (2020, 2021),
-    "Post-COVID (2022-2023)": (2022, 2023),
-}
-
-PERIOD_COLORS = {
-    "Pre-COVID (2014-2019)": "#2166ac",
-    "During COVID (2020-2021)": "#b2182b",
-    "Post-COVID (2022-2023)": "#1b7837",
-}
-
-# -------------- Functions ---------------
-def calc_period_values(df: pd.DataFrame, crime_type: str, start: int, end: int) -> pd.DataFrame:
-    """Calculate mean values for specific period"""
-    filtered = df[
-        (df["TYPE_CRIME"] == crime_type) &
-        (df["TIME_PERIOD"].between(start, end))
-    ]
-    result = filtered.groupby("REF_AREA")["OBS_VALUE"].mean().reset_index()
-    return result
-
-@st.cache_data
-def compute_weights_cached(gdf_wkt: str, index_list: list):
-    """Cache weights using WKT representation"""
-    gdf = gpd.GeoDataFrame(
-        {"geometry": gpd.GeoSeries.from_wkt(gdf_wkt.split("|||"))},
-        index=index_list
-    )
-    w = Queen.from_dataframe(gdf)
-    w.transform = "R" 
-    return w
-
-def compute_moran_for_period(
-        gdf: gpd.GeoDataFrame,
-        raw_data: pd.DataFrame,
-        crime_type: str,
-        start_year: int,
-        end_year: int
-) -> dict | None:
-    """Compute Moran statistics for a single period"""
-
-    period_data = calc_period_values(raw_data, crime_type, start_year, end_year)
-
-    merged = gdf.merge(period_data, left_on="NUTS_ID", right_on="REF_AREA")
-    merged = merged.dropna(subset=["OBS_VALUE"])
-
-    if len(merged) < 5:
-        return None
-    
-    # build weights
-    w = Queen.from_dataframe(merged)
-    w.transform = "R" 
-
-    y = merged["OBS_VALUE"].values
-
-
-    moran_global = Moran(y, w) # global Moran
-
-    moran_local = Moran_Local(y, w) # local moran
-
-    # standardized values for scatter plot
-    y_std = (y - y.mean()) / y.std()
-    y_lag = w.sparse.dot(y_std)
-
-    # quadrant assignment
-    quadrant = np.zeros(len(y_std), dtype=int)
-    quadrant[(y_std > 0) & (y_lag > 0)] = 1 # HH
-    quadrant[(y_std < 0) & (y_lag < 0)] = 2 # LL
-    quadrant[(y_std > 0) & (y_lag < 0)] = 3 # HL
-    quadrant[(y_std < 0) & (y_lag > 0)] = 4 # LH
-
-    # LISA classification
-    sig = moran_local.p_sim < 0.05
-    lisa_labels = []
-    for i in range(len(merged)):
-        if not sig[i]:
-            lisa_labels.append("Not significant")
-        else:
-            q = moran_local.q[i]
-            lisa_labels.append({
-                1: "High-High",
-                2: "Low-High",
-                3: "Low-Low",
-                4: "High-Low"
-            }[q])
-        
-    merged = merged.copy()
-    merged["y_std"] = y_std
-    merged["y_lag"] = y_lag
-    merged["quadrant"] = quadrant
-    merged["LISA_LABEL"] = lisa_labels
-    merged["LISA_P"] = moran_local.p_sim
-
-    return {
-        "gdf": merged,
-        "moran_I": moran_global.I,
-        "moran_EI": moran_global.EI,
-        "moran_p": moran_global.p_sim,
-        "moran_z": moran_global.z_sim,
-        "y_std": y_std,
-        "y_lag": y_lag,
-        "quadrant": quadrant,
-    }
-
-# ---------- Sidebar filters ---------------
+# ---------- Sidebar filters ----------
 st.sidebar.header("Filters")
 
 data_type = st.sidebar.radio(
@@ -159,7 +52,7 @@ selected_label = st.sidebar.selectbox("Type of crime", crime_labels)
 selected_crime = crime_codes[crime_labels.index(selected_label)]
 
 
-# ---------------- Load data ------------------
+# ---------- Load data ----------
 if data_type == "Absolute crimes":
     raw_data = load_crime_data()
 else:
@@ -169,10 +62,10 @@ raw_data = filter_crime_by_level(raw_data, geo_level)
 shapes = load_shapes(geo_level)
 
 
-# ------- Compute Moran for all periods --------
+# ---------- Compute Moran for all periods ----------
 results = {}
 
-for period_name, (start, end) in PERIODS.items():
+for period_name, (start, end) in PERIODS_WITH_BASELINE.items():
     result = compute_moran_for_period(shapes, raw_data, selected_crime, start, end)
     if result:
         results[period_name] = result
@@ -180,22 +73,8 @@ if len(results) == 0:
     st.error("Not enough data for any period")
     st.stop()
 
-# ============ SECTION 1: Global Moran's I comparison =========
+# ========== SECTION 1: Global Moran's I comparison ==========
 st.subheader("Global Moran's I - Temporal Comparison")
-
-# metrics table
-metrics_data = []
-for period_name, res in results.items():
-    metrics_data.append({
-        "Period": period_name,
-        "Moran's I": res["moran_I"],
-        "Expected I": res["moran_EI"],
-        "z-score": res["moran_z"],
-        "p-value": res["moran_p"],
-        "Significant": "✓" if res["moran_p"] < 0.05 else "✗"
-    })
-
-metrics_df = pd.DataFrame(metrics_data)
 
 # display as columns
 cols = st.columns(len(results))
@@ -214,12 +93,12 @@ for i, (period_name, res) in enumerate(results.items()):
 
 # bar chart comparison
 st.markdown("---")
-fig_comparison = go.Figure()
 
 periods_list = list(results.keys())
 moran_values = [results[p]["moran_I"] for p in periods_list]
 colors = [PERIOD_COLORS[p] for p in periods_list]
 
+fig_comparison = go.Figure()
 fig_comparison.add_trace(go.Bar(
     x=periods_list,
     y=moran_values,
@@ -262,25 +141,9 @@ if len(results) == 3:
             st.write(f" - Post-COVID clustering **{direction}** compared to pandemic period (ΔI = {delta_post:+.3f})")
         
 
-# =========== SECTION 2: Moran Scatter Plot ===========
+# ========== SECTION 2: Moran Scatter Plots ==========
 st.markdown("---")
 st.subheader("Moran Scatter Plots by Period")
-
-QUADRANT_COLORS = {
-    1: "#d73027",
-    2: "#4575b4",
-    3: "#fdae61",
-    4: "#abd9e9",
-    0: "#999999" 
-}
-
-QUADRANT_LABELS = {
-    1: "High-High",
-    2: "Low-Low",
-    3: "High-Low",
-    4: "Low-High",
-    0: "Center"
-}
 
 fig_scatter = make_subplots(
     rows=1, cols=len(results),
@@ -359,18 +222,10 @@ fig_scatter.update_yaxes(title_text="Spatial lag", range=[-3.5, 3.5])
 st.plotly_chart(fig_scatter, width="stretch")
 
 
-# =========== SECTION 3: LISA Maps ==============
+# ========== SECTION 3: LISA Maps ==========
 st.markdown("---")
 st.subheader("LISA Cluster Maps by Period")
 st.markdown("Hot spots (High-High) and cold spots (Low-Low) with p < 0.05")
-
-LISA_COLORS = {
-    "High-High": "#d73027",
-    "Low-Low": "#4575b4",
-    "High-Low": "#fdae61",
-    "Low-High": "#abd9e9",
-    "Not significant": "#f0f0f0"
-}
 
 selected_period = st.selectbox(
     "Select period to display",
@@ -407,7 +262,7 @@ fig_lisa = px.choropleth_map(
 fig_lisa.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0}, height=700)
 st.plotly_chart(fig_lisa, width="stretch")
 
-# cluster summary table
+# ---------- Cluster summary ----------
 st.subheader("Cluster Distribution by Period")
 
 summary_data = []

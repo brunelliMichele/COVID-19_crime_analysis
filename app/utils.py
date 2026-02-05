@@ -1,7 +1,13 @@
 import streamlit as st
 import pandas as pd
 import geopandas as gpd
+import numpy as np
 from pathlib import Path
+from libpysal.weights import Queen, KNN, attach_islands
+from esda.moran import Moran, Moran_Local
+
+# pyright: reportAttributeAccessIssue=false
+# pyright: reportCallIssue=false
 
 DATA_PATH = Path(__file__).parent.parent / "data"
 
@@ -10,6 +16,31 @@ MAPPING_SARDINIA: dict[str, str] = {
     "ITG2B": "ITG26",
     "ITG2C": "ITG27",
     "ITG29": "ITG28", 
+}
+
+PERIODS: dict[str, tuple[int, int]] = {
+    "During COVID (2020-2021)": (2020, 2021),
+    "Post-COVID (2022-2023)": (2022, 2023),
+}
+
+PERIODS_WITH_BASELINE: dict[str, tuple[int, int]] = {
+    "Pre-COVID (2014-2019)": (2014, 2019),
+    "During COVID (2020-2021)": (2020, 2021),
+    "Post-COVID (2022-2023)": (2022, 2023),
+}
+
+PERIOD_COLORS: dict[str, str] = {
+    "Pre-COVID (2014-2019)": "#2166ac",
+    "During COVID (2020-2021)": "#b2182b",
+    "Post-COVID (2022-2023)": "#1b7837",
+}
+
+BASELINE: tuple[int, int] = (2014, 2019)
+
+GEO_LEVELS: dict[str, str] = {
+    "Provinces": "provinces",
+    "Regions": "regions",
+    "Macro-areas": "macro-areas",
 }
 
 CRIME_CATEGORIES: dict[str, dict[str, str]] = {
@@ -87,6 +118,32 @@ CRIME_CATEGORIES: dict[str, dict[str, str]] = {
     }
 }
 
+QUADRANT_COLORS: dict[int, str] = {
+    1: "#d73027",
+    2: "#4575b4", 
+    3: "#fdae61", 
+    4: "#abd9e9", 
+    0: "#999999"
+}
+
+QUADRANT_LABELS: dict[int, str] = {
+    1: "High-High", 
+    2: "Low-Low", 
+    3: "High-Low", 
+    4: "Low-High", 
+    0: "Center"
+}
+
+LISA_COLORS: dict[str, str] = {
+    "High-High": "#d73027",
+    "Low-Low": "#4575b4",
+    "High-Low": "#fdae61",
+    "Low-High": "#abd9e9",
+    "Not significant": "#f0f0f0"
+}
+
+
+# ---------- Data loading ----------
 @st.cache_data
 def load_crime_data() -> pd.DataFrame:
     return pd.read_parquet(DATA_PATH / "processed/crime_clean.parquet")
@@ -106,6 +163,8 @@ def load_shapes(level: str = "provinces") -> gpd.GeoDataFrame:
     gdf["NUTS_ID"] = gdf["NUTS_ID"].replace(MAPPING_SARDINIA)
     return gdf.to_crs(epsg=4326)
 
+
+# ---------- Filtering ----------
 def filter_crime_by_level(crime: pd.DataFrame, level: str) -> pd.DataFrame:
     nuts_len = {
         "provinces": 5,
@@ -114,57 +173,113 @@ def filter_crime_by_level(crime: pd.DataFrame, level: str) -> pd.DataFrame:
     }
     length = nuts_len[level]
     return crime[crime["REF_AREA"].str.len() == length]
-    
 
-def calc_variation(crime: pd.DataFrame, crime_type: str) -> pd.DataFrame:
-    df = crime[crime["TYPE_CRIME"] == crime_type]
 
-    pre = df[df["TIME_PERIOD"].between(2014, 2019)]
-    pre_mean = pre.groupby("REF_AREA")["OBS_VALUE"].mean()
+# ---------- Variation calculations ----------
+def calc_period_variation(df: pd.DataFrame, crime_type: str, baseline: tuple, target: tuple) -> pd.DataFrame:
+    """Calculate variation between baseline period and target period"""
+    filtered = df[df["TYPE_CRIME"] == crime_type]
 
-    covid = df[df["TIME_PERIOD"] == 2020]
-    covid_sum = covid.groupby("REF_AREA")["OBS_VALUE"].sum()
+    # baseline mean
+    base_data = filtered[filtered["TIME_PERIOD"].between(baseline[0], baseline[1])]
+    base_mean = base_data.groupby("REF_AREA", as_index=False)["OBS_VALUE"].mean()
+    base_mean.columns = ["REF_AREA", "BASELINE"]
 
-    result = pd.DataFrame({
-        "REF_AREA": pre_mean.index,
-        "MEAN_PRE": pre_mean.values,
-        "COVID_2020": covid_sum.reindex(pre_mean.index).values,
-    })
-    
-    result["VAR"] = (result["COVID_2020"] - result["MEAN_PRE"]) / result["MEAN_PRE"] * 100
+    # target mean
+    target_data = filtered[filtered["TIME_PERIOD"].between(target[0], target[1])]
+    target_mean = target_data.groupby("REF_AREA", as_index=False)["OBS_VALUE"].mean()
+    target_mean.columns = ["REF_AREA", "TARGET"]
 
-    result.loc[result["MEAN_PRE"] == 0, "VAR"] = None
-
-    return result
-
-def calc_rate_variation(criminality: pd.DataFrame, crime_type: str) -> pd.DataFrame:
-    df = criminality[criminality["TYPE_CRIME"] == crime_type]
-
-    pre = df[df["TIME_PERIOD"].between(2014, 2019)]
-    pre_mean = pre.groupby("REF_AREA")["OBS_VALUE"].mean()
-
-    covid = df[df["TIME_PERIOD"] == 2020]
-    covid_val = covid.groupby("REF_AREA")["OBS_VALUE"].first() 
-
-    result = pd.DataFrame({
-        "REF_AREA": pre_mean.index,
-        "MEAN_PRE": pre_mean.values,
-        "COVID_2020": covid_val.reindex(pre_mean.index).values,
-    })
-
-    result["VAR"] = (result["COVID_2020"] - result["MEAN_PRE"]) / result["MEAN_PRE"] * 100
-    result.loc[result["MEAN_PRE"] == 0, "VAR"] = None
+    # merge and calculate variation
+    result = base_mean.merge(target_mean, on="REF_AREA", how="outer")
+    result["VAR"] = (result["TARGET"] - result["BASELINE"]) / result["BASELINE"] * 100
+    result.loc[result["BASELINE"] == 0, "VAR"] = None
 
     return result
 
-def fix_sardinia_codes(gdf: gpd.GeoDataFrame, column: str="NUTS_ID") -> gpd.GeoDataFrame:
-    gdf = gdf.copy()
-    gdf[column] = gdf[column].replace(MAPPING_SARDINIA)
-    return gdf
 
-def get_crime_options() -> list[tuple[str, str, str]]:
-    options = []
-    for category, crimes in CRIME_CATEGORIES.items():
-        for code, name in crimes.items():
-            options.append((category, code, name))
-    return options
+# ---------- Moran's I ----------
+
+def calc_period_values(df: pd.DataFrame, crime_type: str, start: int, end: int) -> pd.DataFrame:
+    """Calculate mean values for specific period"""
+    filtered = df[
+        (df["TYPE_CRIME"] == crime_type) &
+        (df["TIME_PERIOD"].between(start, end))
+    ]
+    result = filtered.groupby("REF_AREA")["OBS_VALUE"].mean().reset_index()
+    return result
+
+
+def compute_moran_for_period(
+        gdf: gpd.GeoDataFrame,
+        raw_data: pd.DataFrame,
+        crime_type: str,
+        start_year: int,
+        end_year: int
+) -> dict | None:
+    """Compute Moran statistics for a single period"""
+
+    period_data = calc_period_values(raw_data, crime_type, start_year, end_year)
+
+    merged = gdf.merge(period_data, left_on="NUTS_ID", right_on="REF_AREA")
+    merged = merged.dropna(subset=["OBS_VALUE"])
+
+    if len(merged) < 5:
+        return None
+    
+    # build weights with island handling
+    w = Queen.from_dataframe(merged, use_index=False)
+    if w.n_components > 1:
+        w = attach_islands(w, KNN.from_dataframe(merged, k=1, use_index=False))
+    w.transform = "R" 
+
+    y = merged["OBS_VALUE"].values
+
+
+    moran_global = Moran(y, w) # Global Moran
+
+    moran_local = Moran_Local(y, w) # Local Moran
+
+    # standardized values for scatter plot
+    y_std = (y - y.mean()) / y.std()
+    y_lag = w.sparse.dot(y_std)
+
+    # quadrant assignment
+    quadrant = np.zeros(len(y_std), dtype=int)
+    quadrant[(y_std > 0) & (y_lag > 0)] = 1 # HH
+    quadrant[(y_std < 0) & (y_lag < 0)] = 2 # LL
+    quadrant[(y_std > 0) & (y_lag < 0)] = 3 # HL
+    quadrant[(y_std < 0) & (y_lag > 0)] = 4 # LH
+
+    # LISA classification
+    sig = moran_local.p_sim < 0.05
+    lisa_labels = []
+    for i in range(len(merged)):
+        if not sig[i]:
+            lisa_labels.append("Not significant")
+        else:
+            q = moran_local.q[i]
+            lisa_labels.append({
+                1: "High-High",
+                2: "Low-High",
+                3: "Low-Low",
+                4: "High-Low"
+            }[q])
+        
+    merged = merged.copy()
+    merged["y_std"] = y_std
+    merged["y_lag"] = y_lag
+    merged["quadrant"] = quadrant
+    merged["LISA_LABEL"] = lisa_labels
+    merged["LISA_P"] = moran_local.p_sim
+
+    return {
+        "gdf": merged,
+        "moran_I": moran_global.I,
+        "moran_EI": moran_global.EI,
+        "moran_p": moran_global.p_sim,
+        "moran_z": moran_global.z_sim,
+        "y_std": y_std,
+        "y_lag": y_lag,
+        "quadrant": quadrant,
+    }
