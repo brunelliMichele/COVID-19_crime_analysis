@@ -142,6 +142,18 @@ LISA_COLORS: dict[str, str] = {
     "Not significant": "#f0f0f0"
 }
 
+TRANSITION_COLORS: dict[str, str] = {
+    "Stable Hot Spot": "#d73027",           
+    "Stable Cold Spot": "#4575b4",          
+    "New Hot Spot": "#ff7f00",              
+    "New Cold Spot": "#1f78b4",             
+    "Disappeared Hot Spot": "#ffcccc",      
+    "Disappeared Cold Spot": "#cce5ff",     
+    "Stable Outlier": "#984ea3",            
+    "Stable Not Significant": "#f0f0f0",    
+    "Other Transition": "#bdbdbd"          
+}
+
 
 # ---------- Data loading ----------
 @st.cache_data
@@ -283,3 +295,47 @@ def compute_moran_for_period(
         "y_lag": y_lag,
         "quadrant": quadrant,
     }
+
+# ---------- Transitions ----------
+def classify_transition(from_label: str, to_label: str) -> str:
+    """Classify the type of transition between LISA clusters"""
+    if from_label == to_label:
+        if from_label == "High-High":
+            return "Stable Hot Spot"
+        elif from_label == "Low-Low":
+            return "Stable Cold Spot"
+        elif from_label in ["High-Low", "Low-High"]:
+            return "Stable Outlier"
+        else:
+            return "Stable Not Significant Spot"
+        
+    # new clusters
+    if to_label == "High-High":
+        return "New Hot Spot"
+    if to_label == "Low-Low":
+        return "New Cold Spot"
+
+    # disappeared clusters
+    if from_label == "High-High":
+        return "Disappeared Hot Spot"
+    if from_label == "Low-Low":
+        return "Disappeared Cold Spot"
+    
+    return "Other Transition"
+
+def compute_transitions(gdf_from: gpd.GeoDataFrame, gdf_to: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+    """Compute transitions between two periods"""
+    # merge on NUTS_ID
+    merged = gdf_from[["NUTS_ID", "AREA_NAME", "LISA_LABEL", "geometry"]].merge(
+        gdf_to[["NUTS_ID", "LISA_LABEL"]],
+        on="NUTS_ID",
+        suffixes=("_from", "_to")
+    )
+
+    # classify transitions
+    merged["TRANSITION"] = merged.apply(
+        lambda row: classify_transition(row["LISA_LABEL_from"], row["LISA_LABEL_to"]),
+        axis=1
+    )
+
+    return gpd.GeoDataFrame(merged, geometry="geometry")
