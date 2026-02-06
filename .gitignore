@@ -3,9 +3,19 @@
 *.parquet
 *.geoparquet
 
-# junk
-.DS_Store
-.ipynb_checkpoints/
+# Python
 __pycache__/
 .venv/
+
+# LaTeX
+*.aux
+*.log
+*.out
+*.toc
+*.bbl
+*.blg
+*.synctex.gz
+
+# OS / IDE
+.DS_Store
 EOF
