@@ -156,6 +156,19 @@ TRANSITION_COLORS: dict[str, str] = {
     "Other Transition": "#bdbdbd"          
 }
 
+CRIMES_TO_CHECK: list[tuple[str, str]] = [
+    ("PICKTHEF", "Pickpocketing"),
+    ("BANKROB", "Bank Robbery"),
+    ("THEFT", "Theft (Total)"),
+    ("ROBBER", "Robbery (Total)"),
+    ("BURGTHEF", "Residential Burglary"),
+    ("CARTHEF", "Car Theft"),
+    ("STREETROB", "Street Robbery"),
+    ("CYBERCRIM", "Cybercrime"),
+    ("SWINCYB", "Online Fraud"),
+    ("TOT", "Total Crimes"),
+]
+
 
 # ---------- Data loading ----------
 @st.cache_data
@@ -211,6 +224,35 @@ def calc_period_variation(df: pd.DataFrame, crime_type: str, baseline: tuple, ta
 
     return result
 
+@st.cache_data
+def get_all_variations() -> pd.DataFrame:
+    """Calculate variations for all key crime types using national data"""
+    crime = load_crime_data()
+
+    # filter to national level (REF_AREA = "IT")
+    national = crime[crime["REF_AREA"].str.len() == 2]
+
+    results = []
+    for code, name in CRIMES_TO_CHECK:
+        data = national[national["TYPE_CRIME"] == code]
+        if len(data) == 0:
+            continue
+
+        pre = data[data["TIME_PERIOD"].between(2014, 2019)]["OBS_VALUE"].mean()
+        during = data[data["TIME_PERIOD"].between(2020, 2021)]["OBS_VALUE"].mean()
+
+        var = (during - pre) / pre * 100 if pre > 0 else 0
+
+        results.append({
+            "code": code,
+            "name": name,
+            "pre_covid_avg": during,
+            "during_covid_avg": during,
+            "variation_pct": var
+        })
+    return pd.DataFrame(results)
+
+    
 
 # ---------- Moran's I ----------
 
