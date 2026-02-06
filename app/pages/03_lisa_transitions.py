@@ -193,3 +193,98 @@ fig_bar.update_layout(
 )
 
 st.plotly_chart(fig_bar, width="stretch")
+
+# ========== SECTION 4: Notable Changes ==========
+st.markdown("---")
+st.subheader("Notable Changes")
+
+col1, col2 = st.columns(2)
+
+with col1:
+    st.markdown("**New Hot Spots** (emerging high-crime clusters)")
+    new_hotspots = gdf_transitions[gdf_transitions["TRANSITION"] == "New Hot Spot"][["AREA_NAME", "LISA_LABEL_from", "LISA_LABEL_to"]]
+    if len(new_hotspots) > 0:
+        new_hotspots.columns = ["Area", "From", "To"]
+        st.dataframe(new_hotspots, hide_index=True)
+    else:
+        st.info("No new hot spots emerged")
+
+with col2:
+    st.markdown("**New Cold Spots** (emerging low-crime clusters)")
+    new_coldspots = gdf_transitions[gdf_transitions["TRANSITION"] == "New Cold Spot"][["AREA_NAME", "LISA_LABEL_from", "LISA_LABEL_to"]]
+    if len(new_coldspots) > 0:
+        new_coldspots.columns = ["Area", "From", "To"]
+        st.dataframe(new_coldspots, hide_index=True)
+    else:
+        st.info("No new cold spots emerged")
+
+col3, col4 = st.columns(2)
+
+with col3:
+    st.markdown("**Disappeared Hot Spots** (previously high-crime, now changed)")
+    disappeared_hot = gdf_transitions[gdf_transitions["TRANSITION"] == "Disappeared Hot Spot"][["AREA_NAME", "LISA_LABEL_from", "LISA_LABEL_to"]]
+    if len(disappeared_hot) > 0:
+        disappeared_hot.columns = ["Area", "From", "To"]
+        st.dataframe(disappeared_hot, hide_index=True)
+    else:
+        st.info("No hot spots disappeared")
+    
+with col4:
+    st.markdown("**Disappeared Cold Spots** (previously low-crime, now changed)")
+    disappeared_cold = gdf_transitions[gdf_transitions["TRANSITION"] == "Disappeared Cold Spot"][["AREA_NAME", "LISA_LABEL_from", "LISA_LABEL_to"]]
+    if len(disappeared_cold) > 0:
+        disappeared_cold.columns = ["Area", "From", "To"]
+        st.dataframe(disappeared_cold, hide_index=True)
+    else:
+        st.info("No cold spots disappeared")
+
+
+# ========== SECTION 5: Side-by-side comparison ==========
+st.markdown("---")
+st.subheader("Side-by-Side LISA Maps")
+
+col1, col2 = st.columns(2)
+
+with col1:
+    st.markdown(f"**{from_period}**")
+    fig_from = px.choropleth_map(
+        gdf_from,
+        geojson=gdf_from.geometry.__geo_interface__,
+        locations=gdf_from.index,
+        color="LISA_LABEL",
+        color_discrete_map=LISA_COLORS,
+        category_orders={"LISA_LABEL": list(LISA_COLORS.keys())},
+        map_style="carto-positron",
+        hover_name="AREA_NAME"
+    )
+    fig_from.update_layout(
+        margin={"r": 0, "t": 0, "l": 0, "b": 0},
+        height=500,
+        map=dict(
+            center=dict(lat=42.0, lon=12.5),
+            zoom=4.5
+        )
+    )
+    st.plotly_chart(fig_from, width="stretch")
+
+with col2:
+    st.markdown(f"**{to_period}**")
+    fig_to = px.choropleth_map(
+        gdf_to,
+        geojson=gdf_to.geometry.__geo_interface__,
+        locations=gdf_to.index,
+        color="LISA_LABEL",
+        color_discrete_map=LISA_COLORS,
+        category_orders={"LISA_LABEL": list(LISA_COLORS.keys())},
+        map_style="carto-positron",
+        hover_name="AREA_NAME"
+    )
+    fig_to.update_layout(
+        margin={"r": 0, "t": 0, "l": 0, "b": 0},
+        height=500,
+        map=dict(
+            center=dict(lat=42.0, lon=12.5),
+            zoom=4.5
+        )
+    )
+    st.plotly_chart(fig_to, width="stretch")

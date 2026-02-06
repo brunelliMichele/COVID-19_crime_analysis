@@ -1,3 +1,4 @@
+import warnings
 import streamlit as st
 import pandas as pd
 import geopandas as gpd
@@ -8,6 +9,7 @@ from esda.moran import Moran, Moran_Local
 
 # pyright: reportAttributeAccessIssue=false
 # pyright: reportCallIssue=false
+warnings.filterwarnings("ignore", message="The weights matrix is no fully connected")
 
 DATA_PATH = Path(__file__).parent.parent / "data"
 
