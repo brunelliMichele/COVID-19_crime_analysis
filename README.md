@@ -47,21 +47,21 @@ COVID-19_crime_analysis/
 │       ├── 01_variation_maps.py    # Crime variation maps
 │       ├── 02_moran.py        # Spatial autocorrelation analysis
 │       └── 03_lisa_transitions.py  # LISA cluster transitions
+├── data/
+│   ├── raw/                   # Raw CSV files from ISTAT
+│   ├── processed/             # Cleaned parquet files
+│   └── shapes/                # Italian administrative boundaries
+├── literature/                # Reference papers
 ├── report/                    # Report of the project
 │   ├── sections/ 
 ├── scripts/
 │   ├── fetch_data_istat.py    # Download data from ISTAT API
 │   ├── clean_data.py          # Data cleaning and processing
 │   └── build_shapes.py        # Build Italian shapefiles
-├── data/
-│   ├── raw/                   # Raw CSV files from ISTAT
-│   ├── processed/             # Cleaned parquet files
-│   └── shapes/                # Italian administrative boundaries
-├── literature/                # Reference papers
-├── Dockerfile
 ├── docker-compose.yml
-├── requirements.txt
-└── README.md
+├── Dockerfile
+├── README.md
+└── requirements.txt
 ```
 
 ## Features
