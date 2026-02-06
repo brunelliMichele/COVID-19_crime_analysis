@@ -38,7 +38,7 @@ streamlit run app/app.py
 ## Project Structure
 
 ```
-OVID-19_crime_analysis/
+COVID-19_crime_analysis/
 ├── app/
 │   ├── app.py                 # Main Streamlit application
 │   ├── utils.py               # Utility functions and constants
@@ -47,6 +47,8 @@ OVID-19_crime_analysis/
 │       ├── 01_variation_maps.py    # Crime variation maps
 │       ├── 02_moran.py        # Spatial autocorrelation analysis
 │       └── 03_lisa_transitions.py  # LISA cluster transitions
+├── report/                    # Report of the project
+│   ├── sections/ 
 ├── scripts/
 │   ├── fetch_data_istat.py    # Download data from ISTAT API
 │   ├── clean_data.py          # Data cleaning and processing
