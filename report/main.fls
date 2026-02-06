@@ -171,11 +171,11 @@ INPUT ./sections/data.tex
 INPUT ./sections/data.tex
 INPUT ./sections/data.tex
 INPUT sections/data.tex
-INPUT ./sections/methods.tex
-INPUT ./sections/methods.tex
-INPUT ./sections/methods.tex
-INPUT ./sections/methods.tex
-INPUT sections/methods.tex
+INPUT ./sections/methodology.tex
+INPUT ./sections/methodology.tex
+INPUT ./sections/methodology.tex
+INPUT ./sections/methodology.tex
+INPUT sections/methodology.tex
 INPUT ./sections/results.tex
 INPUT ./sections/results.tex
 INPUT ./sections/results.tex
