@@ -293,3 +293,17 @@ fig_stacked = px.bar(
 
 fig_stacked.update_layout(height=400)
 st.plotly_chart(fig_stacked, width="stretch")
+
+
+# ---------- Footer ----------
+st.markdown("---")
+st.markdown(
+    """
+    <div style="text-align: center; color: gray; font-size: 0.85em;">
+        Project for the course 'Geospatial Analysis and Representation for Data Science' 
+        of the Master's Degree Course in Data Science of the University of Trento.<br><br>
+        Developed with 🐍 & ❤️ by Michele Brunelli | 2026
+    </div>
+    """,
+    unsafe_allow_html=True
+)

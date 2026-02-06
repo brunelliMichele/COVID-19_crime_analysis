@@ -1,9 +1,11 @@
 streamlit>=1.30.0
+
 pandas>=2.0.0
-geopandas>=0.14.0
-requests
 pyarrow>=14.0.0
-matplotlib
+requests>=2.28.0
+
+geopandas>=0.14.0
+libpysal>=4.9.0
+esda>=2.5.0
+
 plotly>=5.18.0
-libpysal
-esda
