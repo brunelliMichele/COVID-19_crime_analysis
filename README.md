@@ -11,6 +11,7 @@ git clone https://github.com/brunelliMichele/COVID-19_crime_analysis.git
 cd COVID-19_crime_analysis
 docker-compose up --build -d
 ```
+> **Note:** On first run, the app will automatically download data from ISTAT API. This may take 3-5 minutes.
 
 Then open [http://localhost:8501](http://localhost:8501) in your browser.
 
@@ -54,7 +55,7 @@ OVID-19_crime_analysis/
 │   ├── raw/                   # Raw CSV files from ISTAT
 │   ├── processed/             # Cleaned parquet files
 │   └── shapes/                # Italian administrative boundaries
-├── literature/                # Reference papers and documents
+├── literature/                # Reference papers
 ├── Dockerfile
 ├── docker-compose.yml
 ├── requirements.txt
