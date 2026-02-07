@@ -34,11 +34,21 @@ def fetch_one_year(flow_key: str, flow_id: str, year: int, current: int, total: 
     print(f"[{current}/{total}] {flow_key} {year} - done ({len(r.content) / 1024:.1f} KB)")
     return out
 
-def load_concat_csv(paths: list[Path]) -> pd.DataFrame:
+def load_concat_csv(paths: list[Path], flow_key: str) -> pd.DataFrame:
     dfs = []
     for p in paths:
         dfs.append(pd.read_csv(p))
-    return pd.concat(dfs, ignore_index=True)
+    df = pd.concat(dfs, ignore_index=True)
+
+    # remove duplicates caused by overlapping year ranges in source files
+    rows_before = len(df)
+    df = df.drop_duplicates(subset=["REF_AREA", "TYPE_CRIME", "TIME_PERIOD"], keep="first")
+    rows_after = len(df)
+
+    if rows_before > rows_after:
+        print(f" !! {flow_key}: removed {rows_before - rows_after:,} duplicate rows")
+    
+    return df
 
 def main() -> None:
     total_files = len(DATAFLOWS) * len(YEARS)
@@ -54,7 +64,7 @@ def main() -> None:
             path = fetch_one_year(key, flow, y, current, total_files)
             paths.append(path)
         
-        df = load_concat_csv(paths)
+        df = load_concat_csv(paths, key)
         out_parquet = OUT_PROCESSED / f"{key}_2014_2023.parquet"
         df.to_parquet(out_parquet, index=False)
         print(f"[OK] {key}: {df.shape[0]:,} rows saved to {out_parquet.name}")

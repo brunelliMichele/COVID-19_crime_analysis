@@ -50,68 +50,90 @@ def check_and_setup_data():
 
     missing = [f for f in required_files if not f.exists()]
 
-    if missing:
-        st.title("Initla Setup")
-        st.warning("Data not found. Running initial setup...")
+    if not missing:
+        return
+    
 
-        st.info("""
-        **What's happening:**
-        - Downloading 10 years of crime data from ISTAT API (2014-2023)
-        - Each year require separate API call
-        - Total: ~20 files to download
-        
-        **Estimated time:** 3-5 minutes (depending on connection speed)
-        """)
+    # hide sidebar during setup
+    st.markdown(
+        """
+        <style>
+        [data-testid="stSidebar"] {
+            display: none;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+    
+    st.title("Initial Setup")
+    st.warning("Data not found. Running initial setup...")
 
-        scripts_dir = Path(__file__).parent.parent / "scripts"
+    st.info("""
+    **What's happening:**
+    - Downloading 10 years of crime data from ISTAT API (2014-2023)
+    - Each year require separate API call
+    - Total: ~20 files to download
+    
+    **Estimated time:** 3-5 minutes (depending on connection speed)
+    """)
 
-        # Step 1: Fetch data
-        st.markdown("### Step 1/3: Fetching data from ISTAT")
-        progress_bar = st.progress(0.0)
-        status_text = st.empty()
+    scripts_dir = Path(__file__).parent.parent / "scripts"
 
-        pat = re.compile(r"\[(\d+)\s*/\s*(\d+)\]")
+    # Step 1: Fetch data
+    st.markdown("### Step 1/3: Fetching data from ISTAT")
+    progress_bar = st.progress(0.0)
+    status_text = st.empty()
 
-        # run fetch script and capture output
-        process = subprocess.Popen(
-            [sys.executable, "-u", scripts_dir / "fetch_data_istat.py"],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            text=True,
-            bufsize=1
-        )
+    pat = re.compile(r"\[(\d+)\s*/\s*(\d+)\]")
 
-        if process.stdout:
-            for line in process.stdout:
-                status_text.text(line.strip())
+    # run fetch script and capture output
+    process = subprocess.Popen(
+        [sys.executable, "-u", scripts_dir / "fetch_data_istat.py"],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        bufsize=1
+    )
 
-                m = pat.search(line)
-                if m:
-                    cur = int(m.group(1))
-                    tot = int(m.group(2))
-                    progress_bar.progress(min(cur / tot, 1.0))
+    if process.stdout:
+        for line in process.stdout:
+            status_text.text(line.strip())
 
-        process.wait()
-        progress_bar.progress(1.0)
-        status_text.text("Data fetched succesfully!")
+            m = pat.search(line)
+            if m:
+                cur = int(m.group(1))
+                tot = int(m.group(2))
+                progress_bar.progress(min(cur / tot, 1.0))
 
-        # Step 2: Clean data
-        st.markdown("### Step 2/3: Cleaning data")
-        with st.spinner("Processing and cleaning datasets..."):
-            subprocess.run([sys.executable, scripts_dir / "clean_data.py"], check=True)
-        st.text("Data cleaned succesfully!")
+    process.wait()
+    if process.returncode != 0:
+        progress_bar.progress(0.0)
+        status_text.text("Data fetch failed")
+        st.error(f"fetch_data_istat.py exited with code {process.returncode}")
+        st.stop()
 
-        # Step 3: Build shapes
-        st.markdown("### Step 3/3: Building shapefiles")
-        with st.spinner("Preparing geographic boundaries..."):
-            subprocess.run([sys.executable, scripts_dir / "build_shapes.py"], check=True)
-        st.text("Shapefiles ready!")
 
-        st.success("Setup complete! The app will now reload.")
-        st.balloons()
+    progress_bar.progress(1.0)
+    status_text.text("Data fetched succesfully!")
 
-        time.sleep(2)
-        st.rerun()
+    # Step 2: Clean data
+    st.markdown("### Step 2/3: Cleaning data")
+    with st.spinner("Processing and cleaning datasets..."):
+        subprocess.run([sys.executable, scripts_dir / "clean_data.py"], check=True)
+    st.text("Data cleaned succesfully!")
+
+    # Step 3: Build shapes
+    st.markdown("### Step 3/3: Building shapefiles")
+    with st.spinner("Preparing geographic boundaries..."):
+        subprocess.run([sys.executable, scripts_dir / "build_shapes.py"], check=True)
+    st.text("Shapefiles ready!")
+
+    st.success("Setup complete! The app will now reload.")
+    st.balloons()
+
+    time.sleep(2)
+    st.rerun()
 
 check_and_setup_data()
 
