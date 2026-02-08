@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from utils import load_crime_data, get_all_variations
+from utils import get_all_variations
 
 
 st.title("COVID-19 and criminality in Italy")

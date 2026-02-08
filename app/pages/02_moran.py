@@ -4,7 +4,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from utils import(
-    load_crime_data, load_criminality_data, load_shapes, 
+    load_criminality_data, load_shapes, 
     filter_crime_by_level, compute_moran_for_period,
     CRIME_CATEGORIES, PERIODS_WITH_BASELINE, PERIOD_COLORS, 
     QUADRANT_COLORS, QUADRANT_LABELS, LISA_COLORS
@@ -18,6 +18,7 @@ st.set_page_config(
     layout="wide"
 )
 st.title("Spatial Autocorrelation Analysis")
+
 st.markdown("""
 Moran's I measures whether similar values cluster spatially across three periods:
 - **Pre-COVID (2014-2019)**: baseline period
@@ -27,12 +28,6 @@ Moran's I measures whether similar values cluster spatially across three periods
 
 # ---------- Sidebar filters ----------
 st.sidebar.header("Filters")
-
-data_type = st.sidebar.radio(
-    "Data type",
-    ["Absolute crimes", "Criminality rate (per 100k)"],
-    horizontal=True
-)
 
 geo_level = st.sidebar.radio(
     "Geographical level",
@@ -53,10 +48,7 @@ selected_crime = crime_codes[crime_labels.index(selected_label)]
 
 
 # ---------- Load data ----------
-if data_type == "Absolute crimes":
-    raw_data = load_crime_data()
-else:
-    raw_data = load_criminality_data()
+raw_data = load_criminality_data()
 
 raw_data = filter_crime_by_level(raw_data, geo_level)
 shapes = load_shapes(geo_level)

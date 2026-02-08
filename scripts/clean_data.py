@@ -27,22 +27,17 @@ def clean_data(in_path: Path, out_path: Path) -> None:
     print(f"[OK] {out_path} shape={df.shape}")
 
 def main() -> None:
-    files_to_clean = [
-        (
-            PROJECT_ROOT / "data" / "processed" / "delittips_1_2014_2023.parquet",
-            OUT_DIR / "crime_clean.parquet"
-        ),
-        (
-            PROJECT_ROOT / "data" / "processed" / "delittips_9_2014_2023.parquet",
-            OUT_DIR / "criminality_clean.parquet"
-        ),
-    ]
+    print("=" * 50)
+    print("Cleaning crime rate data...")
+    print("=" * 50)
 
-    for in_path, out_path in files_to_clean:
-        if not in_path.exists():
-            print(f"File not found: {in_path}")
-            continue
-        clean_data(in_path, out_path)
+    in_path = PROJECT_ROOT / "data" / "processed" / "delittips_9_2014_2023.parquet"
+    out_path = OUT_DIR / "criminality_clean.parquet"
+
+    clean_data(in_path, out_path)
+    
+    print("=" * 50)
+    print("[OK] - Cleaning complete!")
 
 if __name__ == "__main__":
     main()

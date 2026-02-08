@@ -172,10 +172,6 @@ CRIMES_TO_CHECK: list[tuple[str, str]] = [
 
 # ---------- Data loading ----------
 @st.cache_data
-def load_crime_data() -> pd.DataFrame:
-    return pd.read_parquet(DATA_PATH / "processed/crime_clean.parquet")
-
-@st.cache_data
 def load_criminality_data() -> pd.DataFrame:
     return pd.read_parquet(DATA_PATH / "processed/criminality_clean.parquet")
 
@@ -227,7 +223,7 @@ def calc_period_variation(df: pd.DataFrame, crime_type: str, baseline: tuple, ta
 @st.cache_data
 def get_all_variations() -> pd.DataFrame:
     """Calculate variations for all key crime types using national data"""
-    crime = load_crime_data()
+    crime = load_criminality_data()
 
     # filter to national level (REF_AREA = "IT")
     national = crime[crime["REF_AREA"].str.len() == 2]

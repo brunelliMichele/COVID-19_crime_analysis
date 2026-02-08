@@ -2,7 +2,7 @@ import streamlit as st
 import plotly.express as px
 import plotly.graph_objects as go
 from utils import (
-    load_crime_data, load_criminality_data, load_shapes,
+    load_criminality_data, load_shapes,
     filter_crime_by_level, calc_period_variation,
     CRIME_CATEGORIES, GEO_LEVELS, PERIODS, BASELINE
 )
@@ -23,11 +23,7 @@ st.markdown("Crime variation (%) from pre-COVID baseline (2014-2019)")
 st.sidebar.header("Filters")
 
 # data type selection
-data_type = st.sidebar.radio(
-    "Data type",
-    ["Absolute crimes", "Criminality rate (per 100k)"],
-    horizontal=True
-)
+data_type = "Criminality rate (per 100k)"
 
 # geo level
 selected_geo_label = st.sidebar.radio(
@@ -50,12 +46,8 @@ selected_label = st.sidebar.selectbox("Type of crime", crime_labels)
 selected_crime = crime_codes[crime_labels.index(selected_label)]
 
 # ---------- Load data ----------
-if data_type == "Absolute crimes":
-    raw_data = load_crime_data()
-    value_format = ":.0f"
-else:
-    raw_data = load_criminality_data()
-    value_format = ":.1f"
+raw_data = load_criminality_data()
+value_format = ":.1f"
 
 raw_data = filter_crime_by_level(raw_data, geo_level)
 shapes = load_shapes(geo_level)

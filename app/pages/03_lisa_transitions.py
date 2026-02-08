@@ -4,10 +4,10 @@ import geopandas as gpd
 import plotly.express as px
 import plotly.graph_objects as go
 from utils import (
-    load_crime_data, load_criminality_data, load_shapes,
+    load_criminality_data, load_shapes,
     filter_crime_by_level, compute_moran_for_period, 
-    classify_transition, compute_transitions,
-    CRIME_CATEGORIES, PERIODS, PERIODS_WITH_BASELINE,
+    compute_transitions,
+    CRIME_CATEGORIES, PERIODS_WITH_BASELINE,
     LISA_COLORS, TRANSITION_COLORS
 )
 
@@ -20,6 +20,7 @@ st.set_page_config(
 )
 
 st.title("LISA Cluster Transitions")
+
 st.markdown("""
 This page shows how spatial clusters changed between periods.
 Identify areas where crime patterns shifted due to COVID-19.
@@ -27,12 +28,6 @@ Identify areas where crime patterns shifted due to COVID-19.
 
 # ---------- Sidebar filters ----------
 st.sidebar.header("Filters")
-
-data_type = st.sidebar.radio(
-    "Data type",
-    ["Absolute crimes", "Criminality rate (per 100k)"],
-    horizontal=True
-)
 
 geo_level = st.sidebar.radio(
     "Geographical level",
@@ -52,10 +47,7 @@ selected_label = st.sidebar.selectbox("Type of crime", crime_labels)
 selected_crime = crime_codes[crime_labels.index(selected_label)]
 
 # ---------- Load data ----------
-if data_type == "Absolute crimes":
-    raw_data = load_crime_data()
-else:
-    raw_data = load_criminality_data()
+raw_data = load_criminality_data()
 
 raw_data = filter_crime_by_level(raw_data, geo_level)
 shapes = load_shapes(geo_level)

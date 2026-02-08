@@ -21,21 +21,10 @@ DATA_PATH = Path(__file__).parent.parent / "data"
 def check_and_setup_data():
     """Check if data exists, if not run setup."""
     required_files = [
-        DATA_PATH / "processed/crime_clean.parquet",
         DATA_PATH / "processed/criminality_clean.parquet",
         DATA_PATH / "shapes/nuts1_it.geoparquet",
         DATA_PATH / "shapes/nuts2_it.geoparquet",
         DATA_PATH / "shapes/nuts3_it.geoparquet",
-        DATA_PATH / "raw/delittips_1_2014.csv",
-        DATA_PATH / "raw/delittips_1_2015.csv",
-        DATA_PATH / "raw/delittips_1_2016.csv",
-        DATA_PATH / "raw/delittips_1_2017.csv",
-        DATA_PATH / "raw/delittips_1_2018.csv",
-        DATA_PATH / "raw/delittips_1_2019.csv",
-        DATA_PATH / "raw/delittips_1_2020.csv",
-        DATA_PATH / "raw/delittips_1_2021.csv",
-        DATA_PATH / "raw/delittips_1_2022.csv",
-        DATA_PATH / "raw/delittips_1_2023.csv",
         DATA_PATH / "raw/delittips_9_2014.csv",
         DATA_PATH / "raw/delittips_9_2015.csv",
         DATA_PATH / "raw/delittips_9_2016.csv",
@@ -73,9 +62,9 @@ def check_and_setup_data():
     **What's happening:**
     - Downloading 10 years of crime data from ISTAT API (2014-2023)
     - Each year require separate API call
-    - Total: ~20 files to download
+    - Total: ~10 files to download
     
-    **Estimated time:** 3-5 minutes (depending on connection speed)
+    **Estimated time:** 2-3 minutes (depending on connection speed)
     """)
 
     scripts_dir = Path(__file__).parent.parent / "scripts"
