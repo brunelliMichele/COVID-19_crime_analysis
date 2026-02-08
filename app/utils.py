@@ -84,7 +84,7 @@ CRIME_CATEGORIES: dict[str, dict[str, str]] = {
         "RAPEUN18": "Sexual act with a minor",
         "CORRUPN18": "Corruption of a minor",
         "PROSTI": "Exploitation and facilitation of prostitution",
-        "PORNO": "Child pornography and possesion of child sexual abuse material (CSAM)",
+        "PORNO": "Child sexual abuse material (CASM) offences",
     },
     "Digital crimes": {
         "SWINCYB": "Online fraud and cyber scams",
