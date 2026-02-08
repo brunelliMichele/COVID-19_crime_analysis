@@ -11,7 +11,7 @@ git clone https://github.com/brunelliMichele/COVID-19_crime_analysis.git
 cd COVID-19_crime_analysis
 docker-compose up --build -d
 ```
-> **Note:** On first run, the app will automatically download data from ISTAT API. This may take 3-5 minutes.
+> **Note:** On first run, the app will automatically download data from ISTAT API. This may take 2-3 minutes.
 
 Then open [http://localhost:8501](http://localhost:8501) in your browser.
 
@@ -33,7 +33,7 @@ pip install -r requirements.txt
 streamlit run app/app.py
 ```
 
-> **Note:** On first run, the app will automatically download data from ISTAT API. This may take 3-5 minutes.
+> **Note:** On first run, the app will automatically download data from ISTAT API. This may take 2-3 minutes.
 
 ## Project Structure
 
@@ -71,7 +71,7 @@ Interactive choropleth maps showing percentage variation in crime rates compared
 
 - **View modes:** Single period or compare all periods
 - **Geographic levels:** Provinces (NUTS-3), Regions(NUTS-2), Macro-areas (NUTS-1)
-- **Data types:** Absolute crime or rates per 100,000 inhabitants
+- **Data types:** Crime rates per 100,000 inhabitants
 
 ### 2. Spatial Autocorrelation Analysis
 Moran's I analysis to detect spatial clustering pattern across three periods.
@@ -90,9 +90,7 @@ Track how hot spots and cold spots shifted between periods.
 ## Data Sources
 
 - **Crime Data:** [ISTAT](https://www.istat.it/dati/banche-dati/) - Italian National Institute of Statistics
-    - Datasets:
-        1. ```delittips_1_YYYY.csv``` -> crimes reported to police forces by type and location (YYYY = year)
-        2. ```delittips_9_YYYY.csv``` -> criminality rate by type and location (YYYY = year)
+    - Dataset: ```delittips_1_YYYY.csv``` -> crimes reported to police forces by type and location (YYYY = year)
     - API: SDMX Web Service
 - **Geographic Boundaries:** [Eurostat](https://ec.europa.eu/eurostat/web/nuts/overview)
     - NUTS 2006 classification
