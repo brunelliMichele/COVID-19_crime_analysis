@@ -1,7 +1,21 @@
 import streamlit as st
 import pandas as pd
-from utils import get_all_variations
+from utils import (
+    load_criminality_data, filter_crime_by_level, 
+    calc_period_variation,get_all_variations,
+    BASELINE, PERIODS
+)
 
+CRIME_TYPES = {
+    "PICKTHEF": "Pickpocketing",
+    "BAGTHEF": "Snatch theft",
+    "BURGTHEF": "Residential burglary",
+    "STREETROB": "Street robbery",
+    "RAPE": "Sexual assault",
+    "CYBERCRIM": "Cybercrime",
+    "SWINCYB": "Online fraud and cyber scams",
+    "PORNO": "Child sexual abuse material (CSAM) offences"
+}
 
 st.title("COVID-19 and criminality in Italy")
 st.markdown("""
@@ -11,89 +25,103 @@ Italian provinces, regions and macro-areas from 2014 to 2023.
 """)
 
 # ---------- Calculate all variations ----------
-variations_df = get_all_variations()
+variations_national = get_all_variations()
 
 # get specific values
-def get_var(code: str) -> float:
-    row = variations_df[variations_df["code"] == code]
+def get_national_var(code: str) -> float:
+    row = variations_national[variations_national["code"] == code]
     return row["variation_pct"].values[0] if len(row) > 0 else 0.0
 
-bankrob = get_var("BANKROB")
-pickthef = get_var("PICKTHEF")
-cybercrim = get_var("CYBERCRIM")
-swincyb = get_var("SWINCYB")
 
-
-# ---------- Key Findings ----------
+# ---------- Key Findings with Geographic Level Selection ----------
 st.header("Key Findings")
 
-col1, col2, col3, col4 = st.columns(4)
+# geographic level selector
+geo_level = st.radio(
+    "Select geographic level:",
+    ["provinces", "regions", "macro-areas"],
+    format_func=lambda x: x.capitalize().replace("-", " "),
+    horizontal=True
+)
 
-with col1:
-    st.metric(
-        label="Bank Robbery",
-        value=f"{bankrob:+.0f}%",
-        delta="During COVID",
-        delta_color="normal"
+# load and filter data
+crime_data = load_criminality_data()
+crime_data = filter_crime_by_level(crime_data, geo_level)
+
+# calculate variations for each crime type
+variations_list = []
+
+for code, name in CRIME_TYPES.items():
+    for period_name, (start, end) in PERIODS.items():
+        var_df = calc_period_variation(crime_data, code, BASELINE, (start, end))
+
+        if len(var_df) > 0:
+            mean_var = var_df["VAR"].mean()
+            variations_list.append({
+                "Crime Type": name,
+                "Period": period_name,
+                "Average Variation (%)": mean_var
+            })
+
+# create and pivot dataframe
+if variations_list:
+    variations_df = pd.DataFrame(variations_list)
+
+    # pivot to have periods as columns
+    pivot_df = variations_df.pivot(
+        index="Crime Type",
+        columns="Period",
+        values="Average Variation (%)"
+    ).reset_index()
+
+    # round values
+    for col in pivot_df.columns:
+        if col != "Crime Type":
+            pivot_df[col] = pivot_df[col].round(1)
+        
+    # display as styled dataframe
+    st.dataframe(
+        pivot_df,
+        hide_index=True,
+        column_config={
+            "Crime Type": st.column_config.TextColumn("Crime Type", width="medium"),
+            "During COVID (2020-2021)": st.column_config.NumberColumn(
+                "During COVID (%)",
+                format="%.1f%%"
+            ),
+            "Post-COVID (2022-2023)": st.column_config.NumberColumn(
+                "Post-COVID (%)",
+                format="%.1f%%"
+            ),
+        },
+        width="stretch"
     )
 
-with col2:
-    st.metric(
-        label="Pickpocketing",
-        value=f"{pickthef:+.0f}%",
-        delta="During COVID",
-        delta_color="normal"
-    )
+    # add color-coded interpretation
+    st.info("""
+    **Legend:**
+    - **Negative values**: Crime rate decreased compare to pre-COVID baseline (2014-19)
+    - **Positive values**: Crime rate increased compare to pre-COVID baseline (2014-19)
+    """)
+else:
+    st.warning("No data available for the selected crimes")
 
-with col3:
-    st.metric(
-        label="Cybercrime",
-        value=f"{cybercrim:+.0f}%",
-        delta="During COVID",
-        delta_color="inverse"
-    )
-
-with col4:
-    st.metric(
-        label="Online Fraud",
-        value=f"{swincyb:+.0f}%",
-        delta="During COVID",
-        delta_color="inverse"
-    )
-
-
-# ---------- The Pattern ----------
-st.markdown("---")
-st.header("The Pattern")
-
-col1, col2 = st.columns(2)
-
-# split into decreases and increases
-decreases = variations_df[variations_df["variation_pct"] < 0].sort_values("variation_pct")
-increases = variations_df[variations_df["variation_pct"] > 0].sort_values("variation_pct", ascending=False)
-
-with col1:
-    st.markdown("### Contact Crimes Dropped")
-    st.markdown("Crimes requiring physical presence decreased significantly during lockdowns:")
-
-    for _, row in decreases.iterrows():
-        st.markdown(f"- **{row['name']}:** {row['variation_pct']:+.1f}%")
-
-with col2:
-    st.markdown("### Remote Crimes Increased")
-    st.markdown("Crimes that can be commited remotly saw substantial increases:")
-
-    for _, row in increases.iterrows():
-        st.markdown(f"- **{row['name']}:** {row['variation_pct']:+.1f}%")
-
-total_var = get_var("TOT")
+total_var = get_national_var("TOT")
 st.markdown(f"""
----
-**Overall:** Total crimes changed by {total_var:+.1f}%,
-but the nature of crime shifted significantly from physical to digital.
+**Compositional Shift Hypothesis:** 
+
+While total reported crimes changed by {total_var:+.1f}% during COVID-19, the data reveals 
+a potential **displacement effect** from physical to digital crime. This pattern is consistent 
+with reduced opportunities for contact-based offenses (due to lockdowns and reduced mobility) 
+and increased opportunities for cyber-enabled crimes (increased online activity during 
+remote work/education).
+
+⚠️ **Note:** Correlation does not imply causation. Multiple factors beyond pandemic restrictions 
+may have contributed to these patterns.
 """)
 
 # ---------- Data & Methods ----------
+st.markdown("---")
 st.header("Data & Methods")
 
 st.markdown("""
@@ -129,6 +157,8 @@ st.markdown("""
 
 # ---------- Limitations ----------
 st.markdown("---")
+st.header("Limitations")
+
 st.markdown("""
 - **Annual data only:** ISTAT provides yearly aggregates, so we cannot isolate the effect of specific lockdown periods (e.g., March-May 2020).
 - **Reporting bias:** Some crimes (e.g., domestic violence) may be underreported during lockdowns when victims were confined with perpetrators.
