@@ -1,1 +1,60 @@
 % Results
+\subsection{Aggregate Crime Variation}
+
+The analysis of average provincial-level variations reveals a distinctive pattern in the response of criminal phenomena to pandemic-related restrictions. As shown in Table~\ref{tab:crime_variation_mean}, the offences considered can be clearly divided into two groups according to the type of interaction required for their commission. Contact-based crimes experienced sharp contractions, with pickpocketing recording the most pronounced decline ($-52.4\%$). This finding is consistent with the drastic reduction in urban mobility and tourist flows observed during the lockdown period. Residential burglaries ($-44.0\%$) and snatch thefts ($-38.6\%$) display similar trends, suggesting a strong correlation with reduced circulation in public spaces and increased time spent at home.By contrast, digital crimes registered substantial increases. Offences related to the possession of child sexual abuse material ($+86.3\%$) and cybercrime ($+83.2\%$) nearly doubled relative to the baseline period. Online fraud increased by $67.2\%$, reflecting the intensification of digital activity during the pandemic. The widespread adoption of smart working, distance learning, and e-commerce significantly expanded the pool of potential targets for cybercriminal communities.An apparently anomalous pattern emerges from the analysis of sexual violence ($+16.8\%$). Although classified as a contact-based crime, this offence exhibits a significant increase during the pandemic period. This countertrend is likely related to the situation of survivors\footnote{The term ``survivor'' is used here in an analytical sense to refer to individuals who have experienced sexual violence, in order to emphasise the continuity of subjectivity beyond the traumatic event and to avoid defining individuals exclusively through victimisation.}, who were often forced to cohabit with their abusers during lockdowns. It is important to stress that the positive variation in this indicator is particularly concerning, especially when considering the well-documented reporting bias associated with sexual and domestic violence. Sociological literature highlights how survivors of domestic violence were especially vulnerable during lockdowns, being confined at home with abusers\footnote{The term ``abuser'' is used to refer to the perpetrators of sexual violence in an analytical sense, with the aim of highlighting the relational and behavioural dimensions of violence, rather than reducing these individuals solely to the legal category of ``offender'' or ``criminal''.} and facing reduced access to support services \citep{koss1992}.
+
+\input{tables/crime_variation_mean.tex}
+
+Overall, the total number of reported crimes decreased by $16.8\%$. This aggregate reduction, however, masks a substantial displacement effect: criminal activity largely shifted from physical spaces to the digital domain, supporting the hypothesis of mobility-restriction-induced crime displacement. Aggregation at the national level conceals marked territorial heterogeneity. The analysis of provincial distributions reveals that variations were far from uniform across the Italian territory. As shown in Table~\ref{tab:provincial_variations}, the provinces recording the highest relative increases include medium-sized and small areas located both in the North (Mantua, Ferrara, Lecco) and in the South (Avellino and Caltanissetta). This pattern suggests that the forced digitalisation induced by the pandemic affected territories with very different socio-economic characteristics. It can be hypothesised that these crimes impacted large Italian cities to a lesser extent, where digitalisation was already more advanced compared to provincial areas; however, given the available data, this remains a tentative interpretation.
+
+\input{tables/cybercrime_increases.tex}
+
+The offence showing the largest relative increase concerns the possession of child sexual abuse material ($+86.3\%$ at the national level). While this figure warrants particular attention due to the intrinsic severity of the phenomenon, it must be interpreted with methodological caution. As shown in Table~\ref{tab:csam_increases}, baseline rates are extremely low (often below one offence per 100{,}000 inhabitants), making percentage variations highly sensitive to small absolute changes. Nevertheless, despite low absolute values, the generalised increase observed across the majority of Italian provinces points to a systematic phenomenon rather than statistical noise. This pattern is consistent with two non-mutually exclusive mechanisms: (i) increased online exposure of minors during lockdowns, and (ii) intensified production and distribution facilitated by prolonged domestic confinement and increased digital traffic.
+
+\input{tables/csam_increases.tex}
+
+The most pronounced reductions in pickpocketing rates are observed in provinces characterised by strong commercial and touristic specialisation (Table~\ref{tab:pickpocketing_decreases}). Trieste ($-83.0\%$), Enna ($-82.0\%$), and Prato ($-72.7\%$) exhibit particularly large declines, in line with their role as commercial and tourist hubs. Milan, while also recording a substantial decrease ($-34.7\%$), displays a contraction well below the national average ($-52.4\%$). This suggests that, even under restrictive conditions, the Lombard metropolis maintained a residual level of urban activity and mobility higher than that observed in other territorial contexts.
+
+\input{tables/pickpocketing_decreases.tex}
+
+\subsection{Spatial Autocorreletion Analysis}
+
+The analysis of spatial autocorrelation using the global Moran’s I index reveals differentiated patterns in the spatial structure of criminal phenomena across the three periods considered. Table~\ref{tab:moran_values} reports Moran’s I values for the selected crime categories.
+
+\input{tables/moran_values.tex}
+
+Pickpocketing exhibits a moderate degree of spatial clustering in the pre-pandemic period ($I = 0.198$, $p$-value $= 0.003$). This pattern remains relatively stable during the COVID period ($I = 0.191$, $p$-value $= 0.009$), but it almost completely dissolves in the post-COVID phase ($I = 0.092$, $p$-value $= 0.060$), losing statistical significance. Moran scatter plots (Figure~\ref{fig:moran_pickpocketing}) visually confirm this fragmentation. In the pre-COVID period, observations are concentrated along the regression line, with clearly identifiable High--High and Low--Low clusters. This structure persists during the lockdown period. In the post-pandemic phase, however, points display a marked dispersion around the regression line, indicating that pre-existing spatial patterns did not re-emerge. This is likely attributable to the slow recovery of the tourism sector, which plays a crucial role in pickpocketing activity.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/pickpocketing.png}
+\caption{Moran scatter plots for pickpocketing across three periods.}
+\label{fig:moran_pickpocketing}
+\end{figure}
+
+Cybercrime shows relatively high spatial clustering in the pre-pandemic period ($I = 0.371$, $p$-value $= 0.001$). This clustering weakens substantially during the pandemic ($I = 0.245$, $p$-value $= 0.002$) and then stabilizes in the post-COVID phase ($I = 0.272$, $p$-value $= 0.002$). Moran scatter plots (Figure~\ref{fig:moran_cybercrime}) reveal a crucial detail. In the pre-COVID period, several extreme High--High outliers appear in the upper-right quadrant, indicating provinces with very high cybercrime rates surrounded by similarly high-rate neighbors. During the COVID period, these extreme outliers move closer to the regression line, suggesting a more geographically homogeneous distribution. This pattern is consistent with the hypothesis that forced digitalization reduced territorial disparities in exposure to cybercrime, extending digital vulnerabilities to areas that were previously less affected.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/cybercrimes.png}
+\caption{Moran scatter plots for cybercrime across three periods.}
+\label{fig:moran_cybercrime}
+\end{figure}
+
+Sexual violence exhibits an anomalous and progressive increase in spatial clustering across all three periods ($I = 0.338 \rightarrow 0.373 \rightarrow 0.446$, all with $p$-values $< 0.01$). Unlike other contact-based crimes, which show attenuation or fragmentation of spatial patterns, sexual violence displays increasing geographic concentration. Moran scatter plots (Figure~\ref{fig:moran_sexual_violence}) show an increasingly tight alignment of observations along the regression line, with a strengthening of High--High clusters in the post-COVID period. This pattern suggests that pandemic-related factors may have amplified pre-existing territorial inequalities in either the reporting or incidence of sexual violence. As discussed in Section~4.1, this increase may reflect the inability of survivors to leave their homes while being forced into prolonged close contact with their abusers.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/rape.png}
+\caption{Moran scatter plots for sexual assault across three preiods.}
+\label{fig:moran_rape}
+\end{figure}
+
+Finally, Moran’s I computed on the total number of reported crimes shows a substantial reduction in overall spatial clustering during the COVID period (from $I = 0.253$ in the pre-COVID phase to $I = 0.123$ during COVID, both with $p$-values $< 0.05$). Moran scatter plots (Figure~\ref{fig:moran_total}) display a clear dispersion of observations away from the regression line during the pandemic, indicating that COVID-19 fragmented the overall spatial structure of crime. In the post-COVID period, a partial recovery is observed ($I = 0.149$), but clustering remains below pre-pandemic levels, suggesting that the spatial equilibria of crime have not fully returned to their previous configuration.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/total.png}
+\caption{Moran scatter plots for total reported crimes across three periods.}
+\label{fig:moran_total}
+\end{figure}
