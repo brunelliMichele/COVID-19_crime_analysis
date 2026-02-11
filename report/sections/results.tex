@@ -58,3 +58,44 @@ Finally, Moran’s I computed on the total number of reported crimes shows a sub
 \caption{Moran scatter plots for total reported crimes across three periods.}
 \label{fig:moran_total}
 \end{figure}
+
+\subsection{Local Spatial Cluster Dynamics}
+
+While the global Moran’s I index quantifies overall spatial clustering, Local Indicators of Spatial Association (LISA) reveal where clusters are located and how they evolve geographically. LISA analysis classifies each province into four categories: High--High (HH) clusters, where high-crime provinces are surrounded by similarly high-rate neighbors; Low--Low (LL) clusters, where low-crime provinces aggregate; and spatial outliers (High--Low and Low--High). This section traces cluster transitions across the three periods, focusing on four representative crimes that exemplify distinct pandemic impacts.
+
+Pickpocketing exhibits a dramatic spatial reconfiguration, with exceptionally low stability rates (Table~\ref{tab:lisa_pickpocketing}). The pre--post COVID stability of only 6.1\% indicates that the pandemic fundamentally altered the geography of this crime. In the pre-COVID period, hot spots were concentrated in the Ligurian coastal provinces (Genova, Savona, Imperia, La Spezia), along with scattered locations in Northern Italy. During COVID, six new hot spots emerged in the Po Valley region (Parma, Bologna, Ravenna, Firenze, Pistoia, Prato), while all Ligurian hot spots simultaneously disappeared—representing a complete cluster dissolution.
+
+\input{tables/lisa_pickpocketing.tex}
+
+The post-COVID period reveals no return to pre-pandemic patterns. Instead, nine new hot spots consolidated in Lombardy and Emilia-Romagna (Brescia, Bergamo, Verona, Cremona, Mantova, Ferrara, Bologna, Ravenna, Firenze), while Liguria remained non-significant. This permanent shift suggests that pickpocketing opportunities reorganized from coastal tourist centers to inland urban-industrial corridors. Such a transition likely reflects changes in mobility patterns, shifts in economic activity, or the slow recovery of international tourism, which historically characterized Ligurian hot spots. The expansion of cold spots was equally pronounced. Nine southern provinces transitioned into Low--Low clusters during COVID, signaling increasing spatial polarization between emerging northern clusters and a progressively low-crime South.
+
+Cybercrime demonstrates moderate stability (20.9\% pre--post) accompanied by a clear geographic redistribution (Table~\ref{tab:lisa_cybercrime}). Pre-COVID hot spots were concentrated in Tuscany and Emilia-Romagna (Firenze, Pistoia, Prato, Modena, Bologna, Ferrara), forming a compact Central Italian cluster. During COVID, this cluster partially dissolved, with nine provinces losing hot-spot status, while five new hot spots emerged in the North-West (Varese, Novara, Cremona, Alessandria, Pavia).
+
+\input{tables/lisa_cybercrime.tex}
+
+In the post-COVID period, this north-western cluster consolidated. Four provinces remained stable hot spots, whereas Tuscan and Emilian provinces definitively lost this status. Notably, no new hot spots emerged in the transition from during to post-COVID, suggesting that the phenomenon stabilized geographically after the initial pandemic reshuffling. This migration toward the North-West likely reflects differential rates of digitalization. Provinces characterized by advanced manufacturing and service sectors experienced more intense technological adoption during forced remote work, creating new vulnerability surfaces. The disappearance of Tuscan hot spots suggests that pre-COVID patterns may have reflected tourism-related cybercrime (e.g., credit card cloning or fraud targeting tourists), which collapsed during travel restrictions. By contrast, industrial digitalization in the North-West appears to have generated more persistent criminal opportunities.
+
+Sexual violence exhibits the most concerning LISA pattern, with low initial stability (6.1\% pre--during) but progressive cluster consolidation rather than dissolution (Table~\ref{tab:lisa_rape}). Pre-COVID hot spots were limited and fragmented (Genova, Firenze, Prato, Trieste). During COVID, only one new hot spot emerged (La Spezia), while Genova and Firenze lost hot-spot status—an apparent weakening of clusters.
+
+\input{tables/lisa_rape.tex}
+
+However, the post-COVID period reveals a striking reversal. Eight new hot spots emerged (Cremona, Modena, Bologna, Lucca, Firenze, Pistoia, Prato, Pisa), forming a dense macro-cluster in Emilia-Romagna and Tuscany. Stability rates increased progressively (6.1\% $\rightarrow$ 9.6\% $\rightarrow$ 16.5\%), indicating a strengthening spatial structure. This sharply contrasts with other contact-based crimes such as pickpocketing, which experienced permanent cluster dissolution. This anomalous intensification aligns with two non-mutually exclusive hypotheses. First, under-reporting during lockdowns may have artificially deflated crime rates in provinces lacking robust support infrastructure, as survivors were confined with abusers and faced reduced access to services. Post-COVID reporting surges may then have concentrated in provinces with stronger institutional support, primarily in Central and Northern Italy. Second, pandemic-related stressors—economic hardship, social isolation, and prolonged domestic cohabitation—may have increased sexual violence in specific territorial contexts, with effects persisting beyond the pandemic.
+
+Residential burglary displays the highest stability rates among all crimes analyzed (38.3\% pre--post), indicating that the pandemic minimally altered its spatial structure (Table~\ref{tab:lisa_residential_burglary}). A large and stable hot-spot cluster spanning Emilia-Romagna, Tuscany, Lombardy, and Veneto persisted across all three periods, with only marginal boundary adjustments.
+
+\input{tables/lisa_reidential_burglary.tex}
+
+During COVID, this core temporarily contracted, as nine provinces lost hot-spot status (Torino, Cremona, Milano, Parma, Piacenza, Savona, Massa-Carrara, Imperia, Siena). However, post-COVID recovery was rapid and geographically proximate. Seven new hot spots emerged (Venezia, Verona, Padova, Lodi, Rovigo, Arezzo, Grosseto), most contiguous with the surviving central cluster. Notably, a metropolitan province such as Milano transitioned from HH (pre) to non-significant (during) and back to HH (post), demonstrating temporary pandemic suspension followed by the re-emergence of the structural pattern. The persistence of this Central-Northern macro-cluster, despite a 44\% reduction in intensity, reflects the dominance of structural factors over contingent disruptions. Residential burglary depends on territorial characteristics—housing typologies, urban density, highway accessibility enabling rapid escape routes, and proximity to regional borders—that lockdown measures did not fundamentally alter.
+
+\begin{figure}
+\centering
+\includegraphics[
+    width=\textwidth,
+    height=0.9\textheight,
+    keepaspectratio
+]{figures/lisa_comparison.png}
+\caption{LISA cluster configurations for four crime types comparing pre-COVID (2014--2019, left) and post-COVID (2022--2023, right) periods. (a) Pickpocketing; (b) Cybercrime; (c) Sexual assault; (d) Residential burglary.}
+\label{fig:lisa_comparison}
+\end{figure}
+
+Figure~\ref{fig:lisa_comparison} visualizes these contrasting evolutionary trajectories across pre- and post-pandemic spatial configurations. The LISA analysis reveals three distinct patterns of cluster evolution. Opportunity-dependent crimes such as pickpocketing underwent permanent geographic reorganization, with stability rates below 10\% and no return to pre-pandemic configurations. Digital crimes such as cybercrime exhibited moderate stability (approximately 20\%), with clear spatial shifts reflecting uneven digitalization processes. Structural crimes such as residential burglary demonstrated high stability (above 35\%), with clusters contracting during restrictions but rapidly recovering in geographically proximate areas. Sexual violence stands apart. Its progressive clustering intensification differs from all other crime types and warrants dedicated investigation into reporting dynamics and territorial disparities in service provision. The contrast between the dissolution of pickpocketing and the persistence of residential burglary highlights a fundamental distinction: crimes dependent on mobile and transient populations (tourists, commuters) experienced lasting geographic disruption, whereas crimes rooted in residential and infrastructural patterns displayed remarkable resilience even under prolonged behavioral restrictions.
