@@ -61,6 +61,7 @@ COVID-19_crime_analysis/
 ├── docker-compose.yml
 ├── Dockerfile
 ├── README.md
+├── report_BRUNELLI.pdf        # Final report of the project
 └── requirements.txt
 ```
 
