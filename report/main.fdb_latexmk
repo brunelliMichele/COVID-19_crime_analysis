@@ -1,13 +1,13 @@
 # Fdb version 4
-["bibtex main"] 1770845884.93594 "main.aux" "main.bbl" "main" 1770845887.06123 0
+["bibtex main"] 1770913905.19723 "main.aux" "main.bbl" "main" 1770913907.22577 0
   "./references.bib" 1770649059.8987 1190 2761f6e8131f3e5b87f09e306eacb6cf ""
   "/usr/local/texlive/2025/texmf-dist/bibtex/bst/base/apalike.bst" 1292289607 24635 604dafcc79f521a11ea73e506e1fbd98 ""
-  "main.aux" 1770845886.8609 6976 3741d55601facc0ba34696973b8d0f43 "pdflatex"
+  "main.aux" 1770913907.04089 6976 d2f76b0b60e5d6ee91148fc5c03185af "pdflatex"
   (generated)
   "main.bbl"
   "main.blg"
   (rewritten before read)
-["pdflatex"] 1770845885.02165 "/Users/michi/Desktop/UNI/DS/Secondo_Anno/Primo_Semestre/GEOSPATIAL ANALYSIS AND REPRESENTATION FOR DATA SCIENCE/paper/COVID-19_crime_analysis/report/main.tex" "main.pdf" "main" 1770845887.06135 0
+["pdflatex"] 1770913905.27163 "/Users/michi/Desktop/UNI/DS/Secondo_Anno/Primo_Semestre/GEOSPATIAL ANALYSIS AND REPRESENTATION FOR DATA SCIENCE/paper/COVID-19_crime_analysis/report/main.tex" "main.pdf" "main" 1770913907.22586 0
   "/Users/michi/Desktop/UNI/DS/Secondo_Anno/Primo_Semestre/GEOSPATIAL ANALYSIS AND REPRESENTATION FOR DATA SCIENCE/paper/COVID-19_crime_analysis/report/main.tex" 1770830622.53879 2547 98ab47eb913583442fb57fea8c8acd30 ""
   "/usr/local/texlive/2025/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc" 1254269338 2375 baa924870cfb487815765f9094cf3728 ""
   "/usr/local/texlive/2025/texmf-dist/fonts/enc/dvips/lm/lm-mathit.enc" 1202520719 2405 5dcf2c1b967ee25cc46c58cd52244aed ""
@@ -140,15 +140,15 @@
   "figures/pickpocketing.png" 1770744090.96103 77320 9d09a93fe4990774f8d6e4cfb870c5c9 ""
   "figures/rape.png" 1770744134.28756 88326 78db10bdbc10cf342a973d26e7b72085 ""
   "figures/total.png" 1770744176.27357 87295 db3de7d0dfdaa3dedd9cb8600a99c856 ""
-  "main.aux" 1770845886.8609 6976 3741d55601facc0ba34696973b8d0f43 "pdflatex"
-  "main.bbl" 1770845885.0199 999 70e255c9f4d5a2a5ab7c5e8dd81d7fe4 "bibtex main"
-  "main.out" 1770845886.86155 1067 c2cc7ae740fcb5b65a4b707f468fb851 "pdflatex"
+  "main.aux" 1770913907.04089 6976 d2f76b0b60e5d6ee91148fc5c03185af "pdflatex"
+  "main.bbl" 1770913905.26986 999 70e255c9f4d5a2a5ab7c5e8dd81d7fe4 "bibtex main"
+  "main.out" 1770913907.04137 1067 c2cc7ae740fcb5b65a4b707f468fb851 "pdflatex"
   "main.tex" 1770830622.53879 2547 98ab47eb913583442fb57fea8c8acd30 ""
-  "sections/conclusions.tex" 1770830416.25723 4389 c06e2a0628ca5a3c77894813100ee1ab ""
-  "sections/data.tex" 1770845882.65443 6077 195eff3eb3973c387aebded6a766d7e2 ""
-  "sections/introduction.tex" 1770574833.61964 2994 a238515efebf0dac39290f1b95fcc900 ""
+  "sections/conclusions.tex" 1770913902.93722 4421 4914a1378178a81d04642ef3c5bf8122 ""
+  "sections/data.tex" 1770913603.71978 6076 5324ad629183ddafeeaed1343d26f401 ""
+  "sections/introduction.tex" 1770913556.52902 2995 fd6911b714f96612118aed381d1ef1ca ""
   "sections/methodology.tex" 1770655317.79296 4783 36b83c3169b493eb6333b0c3b90615ed ""
-  "sections/results.tex" 1770845882.75951 18099 55807026ccf10e2982d2e020bd69b1e7 ""
+  "sections/results.tex" 1770913213.4436 18100 bfc6bcb63d611280dd591520c5d34708 ""
   "tables/crime_categories.tex" 1770566822.02686 667 425081d62beb8f17717f2c32217428f0 ""
   "tables/crime_variation_mean.tex" 1770742830.39121 884 e37a01ef0e176af9234242ecf6645761 ""
   "tables/csam_increases.tex" 1770741628.48045 589 2ecedbaba4953325c4925072d181eeb6 ""
